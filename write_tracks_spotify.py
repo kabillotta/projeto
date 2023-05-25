@@ -1,21 +1,29 @@
 # Databricks notebook source
-account_name = ""
-account_key = ""
-container_name = ""
-directory_name = ""
+account_name = "aulafiaead"
+account_key = "QDKbVST0U3yAaEI4HN9DFwYTB3jGO6xb4Kk5r59UFYOzXrkrVLESZKmrKzPZ/eEsDLV8Fw5XxybA+ASt4EZ2zA=="
+container_name = "grupo5"
+directory_name = "landing"
 
 spark.conf.set('fs.azure.account.key.' + account_name + '.blob.core.windows.net', account_key)
 rootPath = "wasbs://" + container_name + "@" + account_name + ".blob.core.windows.net/"
 bronzePath = rootPath+"delta/bronze"
+silverPath = rootPath+"delta/silver"
 landzonePath = rootPath+"landing"
 #display(dbutils.fs.ls(filePath))
 
 # COMMAND ----------
 
-#%sql
-#create table if not exists spotify_bronze.playlists
-#using delta
-#location "wasbs://grupo5@aulafiaead.blob.core.windows.net/delta/bronze"
+# %sql
+# create table if not exists spotify_bronze.playlists
+# using delta
+# location "wasbs://grupo5@aulafiaead.blob.core.windows.net/delta/bronze"
+
+# COMMAND ----------
+
+# %sql
+# create table if not exists spotify_silver.tracks
+# using delta
+# location "wasbs://grupo5@aulafiaead.blob.core.windows.net/delta/silver"
 
 # COMMAND ----------
 
@@ -32,6 +40,17 @@ df = (
         .json(landzonePath)
 )
 
+
+# COMMAND ----------
+
+#cria arquivo delta na bronze
+df = df.withColumn("partition",lit(datetime.now().strftime("%Y%m%d")))
+df\
+    .write\
+    .format("delta")\
+    .mode("append")\
+    .option("overwriteSchema", "true")\
+    .save(bronzePath)
 
 # COMMAND ----------
 
@@ -60,6 +79,9 @@ df_tracks = (df_tracks
              .withColumnRenamed("id","id_album")
              .withColumnRenamed("name","name_album")
              .withColumnRenamed("artists","artistas_album")
+             .withColumnRenamed("popularity","popularity_album")
+             .withColumnRenamed("type","type_album")
+             .withColumnRenamed("uri","uri_album")
             )
 #partição
 df_tracks = df_tracks.withColumn("partition",lit(datetime.now().strftime("%Y%m%d")))
@@ -67,7 +89,7 @@ df_tracks = df_tracks.withColumn("partition",lit(datetime.now().strftime("%Y%m%d
 
 # COMMAND ----------
 
-#dbutils.fs.ls(bronzePath)
+#display(dbutils.fs.ls(bronzePath))
 
 # COMMAND ----------
 
@@ -77,17 +99,17 @@ df_tracks\
     .partitionBy("partition")\
     .mode("append")\
     .option("overwriteSchema", "true")\
-    .save(bronzePath)
+    .save(silverPath)
 
 # COMMAND ----------
 
-#%sql
-#select * from delta.`wasbs://grupo5@aulafiaead.blob.core.windows.net/delta/bronze`
+# %sql
+# select * from delta.`wasbs://grupo5@aulafiaead.blob.core.windows.net/delta/bronze`
 
 # COMMAND ----------
 
-#%sql
-#select * from spotify_bronze.playlists
+# %sql
+# select * from spotify_silver.tracks
 
 # COMMAND ----------
 
