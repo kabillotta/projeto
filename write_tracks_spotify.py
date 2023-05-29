@@ -1,7 +1,7 @@
 # Databricks notebook source
-account_name = "aulafiaead"
-account_key = "QDKbVST0U3yAaEI4HN9DFwYTB3jGO6xb4Kk5r59UFYOzXrkrVLESZKmrKzPZ/eEsDLV8Fw5XxybA+ASt4EZ2zA=="
-container_name = "grupo5"
+account_name = ""
+account_key = ""
+container_name = ""
 directory_name = "landing"
 
 spark.conf.set('fs.azure.account.key.' + account_name + '.blob.core.windows.net', account_key)
