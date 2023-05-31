@@ -36,8 +36,8 @@ particao = datetime.now().strftime("%Y%m%d")
 
 # COMMAND ----------
 
-df_bronze = spark.table("spotify_bronze.playlists").filter(f"partition == '{particao}' and datesilver is null ")
-df_bronze.display()
+df_bronze = spark.read.format("delta").load(bronzePath)
+df_bronze = df_bronze.filter(f"partition == '{particao}' and datesilver is null ")
 
 # COMMAND ----------
 
