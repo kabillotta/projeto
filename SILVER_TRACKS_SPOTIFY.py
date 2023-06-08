@@ -1,16 +1,22 @@
 # Databricks notebook source
-from pyspark.sql.functions import *
-from pyspark.sql.types import *
-from delta.tables import *
+#from pyspark.sql.functions import *
+#from pyspark.sql.types import *
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import explode, col, lit, to_timestamp
+from delta.tables import DeltaTable
 from datetime import datetime
-import pytz
 
 # COMMAND ----------
 
-account_name = ""
-account_key = ""
-container_name = ""
-directory_name = ""
+account_name = "aulafiaead"
+account_key = "QDKbVST0U3yAaEI4HN9DFwYTB3jGO6xb4Kk5r59UFYOzXrkrVLESZKmrKzPZ/eEsDLV8Fw5XxybA+ASt4EZ2zA=="
+container_name = "grupo5"
+directory_name = "landing"
+
+spark = SparkSession.builder\
+    .config("spark.sql.extensions", "org.apache.spark.sql.delta.sources.DeltaDataSource")\
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")\
+    .getOrCreate()
 
 spark.conf.set('fs.azure.account.key.' + account_name + '.blob.core.windows.net', account_key)
 rootPath = "wasbs://" + container_name + "@" + account_name + ".blob.core.windows.net/"
@@ -18,7 +24,9 @@ bronzePath = rootPath+"delta/bronze"
 silverPath = rootPath+"delta/silver"
 landzonePath = rootPath+"landing"
 #display(dbutils.fs.ls(filePath))
-particao = datetime.now(pytz.timezone('America/Sao_Paulo')).strftime("%Y%m%d")
+particao = datetime.now().strftime("%Y%m%d")
+
+
 
 # COMMAND ----------
 

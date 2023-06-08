@@ -1,16 +1,32 @@
 # Databricks notebook source
-from pyspark.sql.functions import *
-from pyspark.sql.types import *
-from delta.tables import *
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import explode, col, lit, to_timestamp, input_file_name
+#from pyspark.sql.types import *
+from delta.tables import DeltaTable
 from datetime import datetime
 import pytz
 
 # COMMAND ----------
 
-account_name = ""
-account_key = ""
-container_name = ""
-directory_name = ""
+account_name = "aulafiaead"
+account_key = "QDKbVST0U3yAaEI4HN9DFwYTB3jGO6xb4Kk5r59UFYOzXrkrVLESZKmrKzPZ/eEsDLV8Fw5XxybA+ASt4EZ2zA=="
+container_name = "grupo5"
+directory_name = "landing"
+
+spark = SparkSession.builder\
+    .config("spark.sql.extensions", "org.apache.spark.sql.delta.sources.DeltaDataSource")\
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")\
+    .getOrCreate()
+
+# spark = (SparkSession.builder
+#          .config("spark.hadoop.fs.s3a.endpoint", "http://minio:9000")
+#          .config("spark.hadoop.fs.s3a.access.key", "AqJ2HkXFs2hfWxS4")
+#          .config("spark.hadoop.fs.s3a.secret.key", "f254hN80Xari9Fuh9HOPVIGyYSiVB8HY")
+#          .config("spark.hadoop.fs.s3a.path.style.access", True)
+#          .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+#          .config("spark.hadoop.fs.s3a.aws.credentials.provider", "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider")
+#          .getOrCreate()
+#         )
 
 spark.conf.set('fs.azure.account.key.' + account_name + '.blob.core.windows.net', account_key)
 rootPath = "wasbs://" + container_name + "@" + account_name + ".blob.core.windows.net/"
